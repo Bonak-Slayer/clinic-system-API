@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Clinic, Message
+from .models import Clinic, Staff, Message
 from django.contrib.auth.models import User
-from .serializers import ClinicSerializer, MessageSerializer, UserSerializer
+from .serializers import ClinicSerializer, MessageSerializer, UserSerializer, StaffSerializer
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -42,7 +42,11 @@ def get_clinic(request, clinic_id):
     try:
         clinic = Clinic.objects.get(id=clinic_id)
         serialize_clinic = ClinicSerializer(clinic)
-        return Response({'clinic': serialize_clinic.data}, 200)
+
+        staff = Staff.objects.filter(assigned_clinic__name__exact=clinic.name)
+        serialize_staff = StaffSerializer(staff, many=True)
+
+        return Response({'clinic': serialize_clinic.data, 'staff': serialize_staff.data}, 200)
     except:
         return Response({'error': 'No Clinic Found'}, 204)
 

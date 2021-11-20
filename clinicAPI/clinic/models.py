@@ -16,12 +16,35 @@ class Clinic(models.Model):
     def __str__(self):
         return f"{self.name}'s details"
 
+
+#STAFF RELATED CLASSES#
+class Expertise(models.Model):
+    field = models.CharField(max_length=120)
+
+    def __str__(self):
+        return f'{self.field}'
+
+class Role(models.Model):
+    active_role = models.CharField(max_length=120)
+
+    def __str__(self):
+        return f'{self.active_role}'
+
 class Staff(models.Model):
     assigned_clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='assigned_clinic')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='staff')
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='job')
+    specialization = models.ManyToManyField(Expertise, blank=True)
 
+    def __str__(self):
+        return f'{self.role} {self.user.first_name} {self.user.last_name} of {self.assigned_clinic.name}'
+
+
+
+#APPOINTMENT AND INTERACTIVITY RELATED CLASSES#
 class Category(models.Model):
     patient_category = models.CharField(max_length=25)
+
 
 class Inquiry(models.Model):
     content = models.CharField(max_length=1500)

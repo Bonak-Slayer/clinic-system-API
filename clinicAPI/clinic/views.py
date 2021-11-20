@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Clinic, Message
+from .models import Clinic, Staff, Message
 from django.contrib.auth.models import User
-from .serializers import ClinicSerializer, MessageSerializer, UserSerializer
+from .serializers import ClinicSerializer, MessageSerializer, UserSerializer, StaffSerializer
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -31,7 +31,7 @@ def login(request):
                 serialize_user = UserSerializer(user)
                 print('\n\nSUCCESSFULLY AUTHENTICATED USER')
 
-            print(serialize_user.data)
+            print(f'{serialize_user.data}\n')
             return Response({'message': 'LOGIN SUCCESS', 'user_data': serialize_user.data}, 200)
         except:
             return Response({'message': 'LOGIN FAILED'})
@@ -42,7 +42,13 @@ def get_clinic(request, clinic_id):
     try:
         clinic = Clinic.objects.get(id=clinic_id)
         serialize_clinic = ClinicSerializer(clinic)
-        return Response({'clinic': serialize_clinic.data}, 200)
+
+        staff = Staff.objects.filter(assigned_clinic__name__exact=clinic.name)
+        serialize_staff = StaffSerializer(staff, many=True)
+
+        print(f'{serialize_staff.data}\n')
+
+        return Response({'clinic': serialize_clinic.data, 'staff': serialize_staff.data}, 200)
     except:
         return Response({'error': 'No Clinic Found'}, 204)
 
@@ -66,6 +72,6 @@ def receive_message(request):
             newMessage = Message(sender=verify_sender, recipient=verify_recipient, content=message)
             newMessage.save()
 
-            return Response({'message': 'message received by API'}, 200)
+            return Response({'message': 'message received'}, 200)
         except:
-            return Response({'errormessage': 'message was not successfully made'}, 204)
+            return Response({'message': 'message failed'}, 204)

@@ -68,3 +68,5 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient')
 
+    def __str__(self):
+        return f"{self.sender} said '{self.content}' to {self.recipient}"

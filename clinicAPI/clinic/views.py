@@ -54,8 +54,9 @@ def get_clinic(request, clinic_id):
 
 @api_view(['GET'])
 def get_inbox(request, user):
-    current_user = ClinicUser.objects.get(username=user)
+    current_user = ClinicUser.objects.get(id=user)
     inbox = Message.objects.filter(recipient_id=current_user.id)
+
     serialize_inbox = MessageSerializer(inbox, many=True)
     return Response({'inbox': serialize_inbox.data}, 200)
 
@@ -118,13 +119,12 @@ def make_appointment(request):
 
 @api_view(['GET'])
 def get_appointments(request, user):
-    if request.method == 'GET':
-        try:
-            user = ClinicUser.objects.get(id=user)
+    try:
+        user = ClinicUser.objects.get(id=user)
 
-            appointments = Appointment.objects.filter(patient=user)
-            appointment_serializer = AppointmentSerializer(appointments, many=True)
+        appointments = Appointment.objects.filter(patient=user)
+        appointment_serializer = AppointmentSerializer(appointments, many=True)
 
-            return Response({'message': 'retrieved', 'appointments': appointment_serializer.data}, 200)
-        except:
-            return Response({'message': 'failed to get appointments'}, 200)
+        return Response({'message': 'retrieved', 'appointments': appointment_serializer.data}, 200)
+    except:
+        return Response({'message': 'failed to get appointments'}, 200)

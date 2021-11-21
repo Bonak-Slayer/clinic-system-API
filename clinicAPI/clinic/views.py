@@ -60,6 +60,13 @@ def get_inbox(request, user):
     serialize_inbox = MessageSerializer(inbox, many=True)
     return Response({'inbox': serialize_inbox.data}, 200)
 
+@api_view(['GET'])
+def get_sent(request, user):
+    current_user = ClinicUser.objects.get(id=user)
+    sent = Message.objects.filter(sender=current_user)
+
+    serialize_sent = MessageSerializer(sent, many=True)
+    return Response({'sent': serialize_sent.data}, 200)
 
 
 @api_view(['POST'])

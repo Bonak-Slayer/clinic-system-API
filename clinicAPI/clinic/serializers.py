@@ -27,7 +27,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['content', 'date', 'sender', 'recipient']
+        fields = ['id', 'content', 'date', 'sender', 'recipient']
 
 class AppointmentSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()

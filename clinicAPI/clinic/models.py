@@ -46,7 +46,7 @@ class Staff(models.Model):
     specialization = models.ManyToManyField(Expertise, blank=True)
 
     def __str__(self):
-        return f'{self.role} {self.user.first_name} {self.user.last_name} of {self.assigned_clinic.name}'
+        return f'{self.user.first_name} {self.user.last_name}'
 
 
 

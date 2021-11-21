@@ -1,11 +1,10 @@
 from rest_framework import serializers
-from .models import Clinic, Staff, Message
-from django.contrib.auth.models import User
+from .models import ClinicUser, Clinic, Staff, Message
 
-class UserSerializer(serializers.ModelSerializer):
+class ClinicUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id', 'first_name', 'last_name', 'email']
+        model = ClinicUser
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'sex']
 
 class ClinicSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,7 +19,7 @@ class StaffSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Staff
-        fields = ['user', 'role', 'specialization']
+        fields = ['id', 'user', 'role', 'specialization']
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

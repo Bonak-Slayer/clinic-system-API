@@ -1,7 +1,16 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
+class ClinicUser(AbstractUser):
+    middle_name = models.CharField(max_length=200)
+    contact = models.CharField(max_length=11)
+    address = models.CharField(max_length=200)
+    sex = models.CharField(max_length=6)
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
 class Clinic(models.Model):
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
@@ -14,7 +23,7 @@ class Clinic(models.Model):
     description = models.CharField(max_length=800)
 
     def __str__(self):
-        return f"{self.name}'s details"
+        return f"{self.name}"
 
 
 #STAFF RELATED CLASSES#
@@ -32,7 +41,7 @@ class Role(models.Model):
 
 class Staff(models.Model):
     assigned_clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='assigned_clinic')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='staff')
+    user = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='staff')
     role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='job')
     specialization = models.ManyToManyField(Expertise, blank=True)
 
@@ -42,31 +51,34 @@ class Staff(models.Model):
 
 
 #APPOINTMENT AND INTERACTIVITY RELATED CLASSES#
-class Category(models.Model):
-    patient_category = models.CharField(max_length=25)
-
-
 class Inquiry(models.Model):
     content = models.CharField(max_length=1500)
     date = models.DateTimeField(auto_now=True)
-    inquirer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquirer')
+    inquirer = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='inquirer')
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='inquired_clinic')
 
     def __str__(self):
         return f"{self.inquirer}'s inquiry for {self.clinic}"
 
 class Appointment(models.Model):
-    appointment_date = models.DateTimeField()
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='patient')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category')
+    appointment_date = models.DateTimeField(blank=True, null=True)
+    appointment_status = models.CharField(max_length=32)
+    patient = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='patient')
+    category = models.CharField(max_length=32)
     doctor = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name='assigned_doctor')
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='appointment_clinic')
+    health_check = models.BooleanField()
+    vaccinated = models.BooleanField()
+
+    def __str__(self):
+        return f"Appointment for {self.patient} at {self.clinic}, to be conducted by {self.doctor}"
 
 class Message(models.Model):
     content = models.CharField(max_length=800)
     date = models.DateTimeField(auto_now=True)
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient')
+    sender = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='sender')
+    recipient = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='recipient')
 
     def __str__(self):
-        return f"{self.sender} said '{self.content}' to {self.recipient}"
+        return f"Message sent by: {self.sender}, sent to {self.recipient}"
+

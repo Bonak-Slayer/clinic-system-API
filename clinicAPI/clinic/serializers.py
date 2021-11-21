@@ -22,6 +22,9 @@ class StaffSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'role', 'specialization']
 
 class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.StringRelatedField()
+    recipient = serializers.StringRelatedField()
+
     class Meta:
         model = Message
         fields = ['content', 'date', 'sender', 'recipient']

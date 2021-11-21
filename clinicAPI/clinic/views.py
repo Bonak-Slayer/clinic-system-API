@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import ClinicUser, Clinic, Staff, Message, Appointment
-from .serializers import ClinicSerializer, MessageSerializer, ClinicUserSerializer, StaffSerializer
+from .serializers import ClinicSerializer, MessageSerializer, ClinicUserSerializer, StaffSerializer, AppointmentSerializer
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -115,3 +115,16 @@ def make_appointment(request):
             return Response({'message': 'appointment created'}, 200)
         except:
             return Response({'message': 'appointment failed'}, 200)
+
+@api_view(['GET'])
+def get_appointments(request, user):
+    if request.method == 'GET':
+        try:
+            user = ClinicUser.objects.get(id=user)
+
+            appointments = Appointment.objects.filter(patient=user)
+            appointment_serializer = AppointmentSerializer(appointments, many=True)
+
+            return Response({'message': 'retrieved', 'appointments': appointment_serializer.data}, 200)
+        except:
+            return Response({'message': 'failed to get appointments'}, 200)

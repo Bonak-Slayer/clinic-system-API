@@ -82,3 +82,12 @@ class Message(models.Model):
     def __str__(self):
         return f"Message sent by: {self.sender}, sent to {self.recipient}"
 
+class Notification(models.Model):
+    recipient = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='notificationRecipient')
+    dateReceived = models.DateTimeField(auto_now=True)
+    content = models.CharField(max_length=120)
+
+    def __str__(self):
+        return f'Notification for {self.recipient}, received {self.dateReceived}'
+
+

@@ -91,6 +91,7 @@ def receive_message(request):
 def make_appointment(request):
     if request.method == 'POST':
         try:
+            appointment = request.POST.get('appointmentDate')
             category = request.POST.get('patientCategory')
             doctor = request.POST.get('doctor')
             has_symptoms = request.POST.get('healthCheck')
@@ -110,8 +111,10 @@ def make_appointment(request):
             elif vaccinated == 'yes':
                 vaccination_check = True
 
+            print(appointment)
 
-            appointment = Appointment(appointment_status="Pending",
+            appointment = Appointment(appointment_date=appointment,
+                                      appointment_status="Pending",
                                       patient=requestedPatient,
                                       category=category,
                                       doctor=requestedDoctor,

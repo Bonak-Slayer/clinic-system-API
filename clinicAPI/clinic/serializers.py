@@ -4,7 +4,8 @@ from .models import ClinicUser, Clinic, Staff, Message, Appointment
 class ClinicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClinicUser
-        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'sex']
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'address',
+                  'contact', 'sex', 'user_category', 'offense_count']
 
 class ClinicSerializer(serializers.ModelSerializer):
     class Meta:

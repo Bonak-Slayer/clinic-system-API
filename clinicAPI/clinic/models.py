@@ -54,7 +54,7 @@ class Staff(models.Model):
 
 #APPOINTMENT AND INTERACTIVITY RELATED CLASSES#
 class Inquiry(models.Model):
-    content = models.CharField(max_length=1500)
+    content = models.CharField(max_length=3000)
     date = models.DateTimeField(auto_now=True)
     inquirer = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='inquirer')
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='inquired_clinic')

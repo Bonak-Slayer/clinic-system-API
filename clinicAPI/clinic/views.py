@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import ClinicUser, Clinic, Staff, Message, Appointment
+from .models import ClinicUser, Clinic, Staff, Message, Appointment, Inquiry
 from .serializers import ClinicSerializer, MessageSerializer, ClinicUserSerializer, StaffSerializer, AppointmentSerializer
 
 # Create your views here.
@@ -138,3 +138,21 @@ def get_appointments(request, user):
         return Response({'message': 'retrieved', 'appointments': appointment_serializer.data}, 200)
     except:
         return Response({'message': 'failed to get appointments'}, 200)
+
+
+@api_view(['POST'])
+def make_inquiry(request):
+    user = request.POST.get('user')
+    clinic = request.POST.get('clinic')
+    content = request.POST.get('content')
+
+    retrieved_user = ClinicUser.objects.get(id=user)
+    retrieved_clinic = Clinic.objects.get(id=clinic)
+
+    try:
+        newInquiry = Inquiry(inquirer=retrieved_user, clinic=retrieved_clinic, content=content)
+        newInquiry.save()
+        return Response({'message': 'inquiry success'}, 200)
+    except:
+        return Response({'message': 'inquiry failed!'}, 200)
+

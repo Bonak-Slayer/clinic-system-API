@@ -156,3 +156,14 @@ def make_inquiry(request):
     except:
         return Response({'message': 'inquiry failed!'}, 200)
 
+#STAFF ENDPOINTS
+@api_view(['GET', 'POST'])
+def assigned_clinics(request, staff_id):
+    user = ClinicUser.objects.get(id=staff_id)
+    staff = Staff.objects.get(user=user)
+
+    if request.method == 'GET':
+        clinics = staff.assigned_clinic.all()
+        serialize_clinics = ClinicSerializer(clinics, many=True)
+
+        return Response({'clinics': serialize_clinics.data}, 200)

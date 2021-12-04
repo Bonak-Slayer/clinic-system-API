@@ -11,5 +11,8 @@ urlpatterns = [
     path('appointment', views.make_appointment, name='appointment'),
     path('getAppointments/<str:user>', views.get_appointments, name='all-appointments'),
     path('makeInquiry', views.make_inquiry, name='inquiry'),
-    path('staff/allclinics/<str:staff_id>', views.assigned_clinics, name='assigned')
+    path('staff/allclinics/<str:staff_id>', views.assigned_clinics, name='assigned'),
+    path('staff/allclinics/getClinic/<str:clinic_id>', views.get_staff, name='staff'),
+    path('staff/clinic/appointments/<str:clinic_id>', views.get_clinic_appointments, name='clinic_appointments'),
+    path('staff/clinic/appointments/approveAppointment/<str:appt_id>', views.approve_appointment, name='approve'),
 ]

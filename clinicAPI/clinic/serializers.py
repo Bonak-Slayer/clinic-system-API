@@ -32,9 +32,10 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class AppointmentSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    patient = serializers.StringRelatedField()
     doctor = serializers.StringRelatedField()
     clinic = serializers.StringRelatedField()
 
     class Meta:
         model = Appointment
-        fields = ['id', 'appointment_date', 'appointment_status', 'category', 'doctor', 'clinic']
+        fields = ['id', 'appointment_date', 'appointment_status', 'category', 'patient', 'doctor', 'clinic']

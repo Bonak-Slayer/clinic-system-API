@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -157,13 +158,50 @@ def make_inquiry(request):
         return Response({'message': 'inquiry failed!'}, 200)
 
 #STAFF ENDPOINTS
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def assigned_clinics(request, staff_id):
     user = ClinicUser.objects.get(id=staff_id)
     staff = Staff.objects.get(user=user)
 
-    if request.method == 'GET':
-        clinics = staff.assigned_clinic.all()
-        serialize_clinics = ClinicSerializer(clinics, many=True)
 
-        return Response({'clinics': serialize_clinics.data}, 200)
+    clinics = staff.assigned_clinic.all()
+    serialize_clinics = ClinicSerializer(clinics, many=True)
+
+    return Response({'clinics': serialize_clinics.data}, 200)
+
+@api_view(['GET'])
+def get_staff(request, clinic_id):
+    clinic = Clinic.objects.get(id=clinic_id)
+    staff = Staff.objects.filter(assigned_clinic=clinic)
+
+    serialize_staff = StaffSerializer(staff, many=True)
+    return Response({'staff': serialize_staff.data}, 200)
+
+@api_view(['GET'])
+def get_clinic_appointments(request, clinic_id):
+    clinic = Clinic.objects.get(id=clinic_id)
+    appointments = Appointment.objects.filter(clinic=clinic)
+
+    serialize_appointments = AppointmentSerializer(appointments, many=True)
+    return Response({'appointments': serialize_appointments.data}, 200)
+
+@api_view(['POST'])
+def approve_appointment(request, appt_id):
+    status = request.POST.get('status')
+
+    appointment = Appointment.objects.get(id=appt_id)
+    appointment.appointment_status = status
+
+    if(status == 'Approved'):
+        time = request.POST.get('time')
+
+        getDate = f'{appointment.appointment_date.date()} {time}'
+        approvedDateTime = datetime.datetime.strptime(getDate, '%Y-%m-%d %H:%M')
+
+        appointment.appointment_date = approvedDateTime
+        appointment.save()
+        return Response({'message': 'Appointment succesfully approved.'}, 200)
+
+    elif(status == 'Rejected'):
+        appointment.save()
+        return Response({'message': 'Appointment successfully rejected.'}, 200)

@@ -1,9 +1,16 @@
 import datetime
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import ClinicUser, Clinic, Staff, Message, Appointment, Inquiry
-from .serializers import ClinicSerializer, MessageSerializer, ClinicUserSerializer, StaffSerializer, AppointmentSerializer
+from .models import ClinicUser, Clinic, Staff, Message, Appointment, Inquiry, Notification
+
+from .serializers import \
+    ClinicSerializer, \
+    MessageSerializer, \
+    ClinicUserSerializer, \
+    StaffSerializer, \
+    AppointmentSerializer, \
+    NotificationSerializer
+
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -200,8 +207,16 @@ def approve_appointment(request, appt_id):
 
         appointment.appointment_date = approvedDateTime
         appointment.save()
-        return Response({'message': 'Appointment succesfully approved.'}, 200)
+        return Response({'message': 'Appointment successfully approved.'}, 200)
 
     elif(status == 'Rejected'):
         appointment.save()
         return Response({'message': 'Appointment successfully rejected.'}, 200)
+
+@api_view(['GET'])
+def get_notifications(request, user_id):
+    user = ClinicUser.objects.get(id=user_id)
+    notifications = Notification.objects.filter(recipient=user)
+
+    serialize_notifications = NotificationSerializer(notifications, many=True)
+    return Response({'notifications': serialize_notifications.data}, 200)

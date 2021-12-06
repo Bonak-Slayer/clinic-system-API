@@ -10,6 +10,7 @@ urlpatterns = [
     path('sendMessage', views.receive_message, name='receive'),
     path('appointment', views.make_appointment, name='appointment'),
     path('getAppointments/<str:user>', views.get_appointments, name='all-appointments'),
+    path('getNotifications/<str:user_id>', views.get_notifications, name='notifications'),
     path('makeInquiry', views.make_inquiry, name='inquiry'),
     path('staff/allclinics/<str:staff_id>', views.assigned_clinics, name='assigned'),
     path('staff/allclinics/getClinic/<str:clinic_id>', views.get_staff, name='staff'),

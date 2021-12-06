@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ClinicUser, Clinic, Staff, Message, Appointment
+from .models import ClinicUser, Clinic, Staff, Message, Appointment, Notification
 
 class ClinicUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,3 +39,8 @@ class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields = ['id', 'appointment_date', 'appointment_status', 'category', 'patient', 'doctor', 'clinic']
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['recipient', 'dateReceived', 'content']

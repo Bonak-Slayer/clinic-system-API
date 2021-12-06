@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ClinicUser, Clinic, Staff, Inquiry, Appointment, Message, Expertise, Role
+from .models import ClinicUser, Clinic, Staff, Inquiry, Appointment, Message, Expertise, Role, Notification
 
 # Register your models here.
 admin.site.register(ClinicUser)
@@ -10,3 +10,4 @@ admin.site.register(Staff)
 admin.site.register(Inquiry)
 admin.site.register(Appointment)
 admin.site.register(Message)
+admin.site.register(Notification)

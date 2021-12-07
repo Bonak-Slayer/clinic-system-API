@@ -15,5 +15,5 @@ urlpatterns = [
     path('staff/allclinics/<str:staff_id>', views.assigned_clinics, name='assigned'),
     path('staff/allclinics/getClinic/<str:clinic_id>', views.get_staff, name='staff'),
     path('staff/clinic/appointments/<str:clinic_id>', views.get_clinic_appointments, name='clinic_appointments'),
-    path('staff/clinic/appointments/approveAppointment/<str:appt_id>', views.approve_appointment, name='approve'),
+    path('staff/clinic/appointments/approveAppointment/<str:appt_id>', views.handle_appointment, name='approve'),
 ]

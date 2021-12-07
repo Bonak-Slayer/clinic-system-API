@@ -193,7 +193,7 @@ def get_clinic_appointments(request, clinic_id):
     return Response({'appointments': serialize_appointments.data}, 200)
 
 @api_view(['POST'])
-def approve_appointment(request, appt_id):
+def handle_appointment(request, appt_id):
     status = request.POST.get('status')
 
     appointment = Appointment.objects.get(id=appt_id)
@@ -207,9 +207,18 @@ def approve_appointment(request, appt_id):
 
         appointment.appointment_date = approvedDateTime
         appointment.save()
+
+        approved_notification = Notification(recipient=appointment.patient,
+                                             content=f'APPROVED: {appointment}')
+        approved_notification.save()
+
         return Response({'message': 'Appointment successfully approved.'}, 200)
 
     elif(status == 'Rejected'):
+        reject_notification = Notification(recipient=appointment.patient,
+                                             content=f'REJECTED: {appointment}')
+        reject_notification.save()
+
         appointment.save()
         return Response({'message': 'Appointment successfully rejected.'}, 200)
 

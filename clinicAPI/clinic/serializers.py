@@ -38,7 +38,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'appointment_date', 'appointment_status', 'category', 'patient', 'doctor', 'clinic']
+        fields = ['id', 'appointment_date', 'appointment_status', 'category', 'patient', 'doctor', 'clinic', 'date_created']
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:

@@ -222,6 +222,30 @@ def handle_appointment(request, appt_id):
         appointment.save()
         return Response({'message': 'Appointment successfully rejected.'}, 200)
 
+
+@api_view(['POST'])
+def reschedule_appointment(request, appt_id):
+    reschedule_date = request.POST.get('rescheduleDate')
+
+    appointment = Appointment.objects.get(id=appt_id)
+    appointment.appointment_date = datetime.datetime.strptime(reschedule_date, '%Y-%m-%d %H:%M')
+    appointment.appointment_status = 'Requested for Reschedule'
+    appointment.save()
+
+    return Response({'message': 'reschedule request sent'}, 200)
+
+
+@api_view(['POST'])
+def cancel_appointment(request):
+    appointment_id = request.POST.get('appointment')
+
+    appointment = Appointment.objects.get(id=appointment_id)
+    appointment.appointment_status = 'Requested for Cancellation'
+    appointment.save()
+
+    return Response({'message': 'cancellation request sent'}, 200)
+
+
 @api_view(['GET'])
 def get_notifications(request, user_id):
     user = ClinicUser.objects.get(id=user_id)

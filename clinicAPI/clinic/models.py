@@ -71,6 +71,7 @@ class Appointment(models.Model):
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='appointment_clinic')
     health_check = models.BooleanField()
     vaccinated = models.BooleanField()
+    date_created = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Appointment for {self.patient} at {self.clinic}, to be conducted by {self.doctor}"

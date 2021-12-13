@@ -1,6 +1,7 @@
 import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.contrib.auth.models import User
 from .models import ClinicUser, Clinic, Staff, Message, Appointment, Inquiry, Notification
 
 from .serializers import \
@@ -28,6 +29,37 @@ def index(request):
 
 
 @api_view(['POST'])
+def signup(request):
+    firstName = request.POST.get('firstName')
+    middleName = request.POST.get('middleName')
+    lastName = request.POST.get('lastName')
+    password = request.POST.get('password')
+    sex = request.POST.get('sex')
+    email = request.POST.get('email')
+    address = request.POST.get('address')
+    contact = request.POST.get('contact')
+    birthDate = request.POST.get('birthDate')
+
+    try:
+        clinicUser = ClinicUser.objects.create_user(username=firstName,
+                                                    first_name=firstName,
+                                                    middle_name=middleName,
+                                                    last_name=lastName,
+                                                    email=email,
+                                                    sex=sex,
+                                                    address=address,
+                                                    contact=contact,
+                                                    user_category='Patient',
+                                                    offense_count=0)
+        clinicUser.set_password(password)
+        print(clinicUser)
+        clinicUser.save()
+        return Response({'message': 'sign up success'}, 200)
+
+    except:
+        return Response({'message': 'sign up failed'}, 200)
+
+@api_view(['POST'])
 def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -35,11 +67,10 @@ def login(request):
 
         try:
             user = ClinicUser.objects.get(email=email)
-            if user.password == password:
+            if user.check_password(password):
                 serialize_user = ClinicUserSerializer(user)
                 print('\n\nSUCCESSFULLY AUTHENTICATED USER')
 
-            print(serialize_user.data)
             return Response({'message': 'LOGIN SUCCESS', 'user_data': serialize_user.data}, 200)
         except:
             return Response({'message': 'LOGIN FAILED'})
@@ -221,6 +252,25 @@ def handle_appointment(request, appt_id):
 
         appointment.save()
         return Response({'message': 'Appointment successfully rejected.'}, 200)
+
+    #HANDLING OF CANCELLATION OF APPOINTMENTS
+    elif (status == 'cancelApproved'):
+        appointment.appointment_status = 'Cancelled'
+        reject_notification = Notification(recipient=appointment.patient,
+                                           content=f'CANCELLATION APPROVED: {appointment}')
+        reject_notification.save()
+
+        appointment.save()
+        return Response({'message': 'Appointment successfully cancelled.'}, 200)
+
+    elif (status == 'cancelRejected'):
+        appointment.appointment_status = 'Cancellation Request Rejected'
+        reject_notification = Notification(recipient=appointment.patient,
+                                           content=f'CANCELLATION REJECTED: {appointment}')
+        reject_notification.save()
+
+        appointment.save()
+        return Response({'message': 'Appointment cancellation was rejected.'}, 200)
 
 
 @api_view(['POST'])

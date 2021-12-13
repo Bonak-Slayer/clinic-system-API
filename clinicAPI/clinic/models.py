@@ -8,7 +8,7 @@ class ClinicUser(AbstractUser):
     address = models.CharField(max_length=200)
     sex = models.CharField(max_length=6)
     user_category = models.CharField(max_length=10)
-    offense_count = models.IntegerField()
+    offense_count = models.IntegerField(null=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

@@ -42,7 +42,7 @@ class Role(models.Model):
         return f'{self.active_role}'
 
 class Staff(models.Model):
-    assigned_clinic = models.ManyToManyField(Clinic, related_name='assigned_clinic')
+    assigned_clinic = models.ManyToManyField(Clinic, related_name='assigned_clinic', blank=True)
     user = models.ForeignKey(ClinicUser, on_delete=models.CASCADE, related_name='staff')
     role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='job')
     specialization = models.ManyToManyField(Expertise, blank=True)

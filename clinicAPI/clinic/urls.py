@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    #PATIENT ENDPOINTS
     path('', views.index, name='index'),
     path('signup', views.signup, name='signup'),
     path('login', views.login, name='login'),
@@ -15,8 +16,14 @@ urlpatterns = [
     path('getAppointments/<str:user>', views.get_appointments, name='all-appointments'),
     path('getNotifications/<str:user_id>', views.get_notifications, name='notifications'),
     path('makeInquiry', views.make_inquiry, name='inquiry'),
+
+    #STAFF ENDPOINTS
+    path('staffSignup', views.staff_signup, name='staff_signup'),
+    path('staff/associate', views.associate, name='associate'),
     path('staff/allclinics/<str:staff_id>', views.assigned_clinics, name='assigned'),
     path('staff/allclinics/getClinic/<str:clinic_id>', views.get_staff, name='staff'),
     path('staff/clinic/appointments/<str:clinic_id>', views.get_clinic_appointments, name='clinic_appointments'),
     path('staff/clinic/appointments/approveAppointment/<str:appt_id>', views.handle_appointment, name='approve'),
+    path('staff/registerClinic', views.register_clinic, name='register_clinic'),
+    path('clinicDuties', views.get_clinic_duties, name='expertise'),
 ]

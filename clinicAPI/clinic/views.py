@@ -1,8 +1,8 @@
 import datetime
+from .cluster import create_analysis
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.contrib.auth.models import User
-from .models import ClinicUser, Clinic, Staff, Message, Appointment, Inquiry, Notification
+from .models import ClinicUser, Clinic, Staff, Message, Appointment, Inquiry, Notification, Expertise, Role
 
 from .serializers import \
     ClinicSerializer, \
@@ -10,7 +10,9 @@ from .serializers import \
     ClinicUserSerializer, \
     StaffSerializer, \
     AppointmentSerializer, \
-    NotificationSerializer
+    NotificationSerializer, \
+    ExpertiseSerializer, \
+    RoleSerializer
 
 
 # Create your views here.
@@ -23,7 +25,12 @@ def index(request):
 
     elif request.method == 'POST':
         clinic = request.POST.get('search')
-        searched_clinics = Clinic.objects.filter(name__contains=clinic)
+
+        if clinic == "":
+            searched_clinics = Clinic.objects.all()
+        else:
+            searched_clinics = Clinic.objects.filter(name__contains=clinic)
+
         serialize_search = ClinicSerializer(searched_clinics, many=True)
         return Response({'clinics': serialize_search.data}, 200)
 
@@ -49,15 +56,60 @@ def signup(request):
                                                     sex=sex,
                                                     address=address,
                                                     contact=contact,
-                                                    user_category='Patient',
+                                                    user_category='Staff',
                                                     offense_count=0)
         clinicUser.set_password(password)
         print(clinicUser)
         clinicUser.save()
         return Response({'message': 'sign up success'}, 200)
-
     except:
         return Response({'message': 'sign up failed'}, 200)
+
+@api_view(['POST'])
+def staff_signup(request):
+    firstName = request.POST.get('firstName')
+    middleName = request.POST.get('middleName')
+    lastName = request.POST.get('lastName')
+    password = request.POST.get('password')
+    sex = request.POST.get('sex')
+    email = request.POST.get('email')
+    address = request.POST.get('address')
+    contact = request.POST.get('contact')
+    birthDate = request.POST.get('birthDate')
+    specializations = request.POST.get('specializations')
+    role = request.POST.get('role')
+
+    individualized = specializations.split(",")
+
+    try:
+        clinicUser = ClinicUser.objects.create_user(username=firstName,
+                                                    first_name=firstName,
+                                                    middle_name=middleName,
+                                                    last_name=lastName,
+                                                    email=email,
+                                                    sex=sex,
+                                                    address=address,
+                                                    contact=contact,
+                                                    user_category='Staff',
+                                                    offense_count=0)
+        clinicUser.set_password(password)
+        clinicUser.save()
+
+        # CREATION OF STAFF
+        getRole = Role.objects.get(active_role__contains=role)
+        print(role)
+        newStaff = Staff(user=clinicUser, role=getRole)
+        newStaff.save()
+
+        for specialization in individualized:
+            equivalent = Expertise.objects.get(field__iexact=specialization)
+            newStaff.specialization.add(equivalent)
+
+        newStaff.save()
+        return Response({'message': 'sign up success'}, 200)
+    except:
+        return Response({'message': 'sign up failed'}, 200)
+
 
 @api_view(['POST'])
 def login(request):
@@ -161,7 +213,6 @@ def make_appointment(request):
                                       health_check=symptom_check,
                                       vaccinated=vaccination_check)
             appointment.save()
-
             return Response({'message': 'appointment created'}, 200)
         except:
             return Response({'message': 'appointment failed'}, 200)
@@ -242,7 +293,7 @@ def handle_appointment(request, appt_id):
         approved_notification = Notification(recipient=appointment.patient,
                                              content=f'APPROVED: {appointment}')
         approved_notification.save()
-
+        create_analysis(appointment.clinic.name)
         return Response({'message': 'Appointment successfully approved.'}, 200)
 
     elif(status == 'Rejected'):
@@ -303,3 +354,69 @@ def get_notifications(request, user_id):
 
     serialize_notifications = NotificationSerializer(notifications, many=True)
     return Response({'notifications': serialize_notifications.data}, 200)
+
+
+@api_view(['GET'])
+def get_clinic_duties(request):
+    specializations = Expertise.objects.all()
+    serialize_expertise = ExpertiseSerializer(specializations, many=True)
+
+    roles = Role.objects.all()
+    serialize_roles = RoleSerializer(roles, many=True)
+
+    return Response({'message': 'expertise retrieval success',
+                     'specializations': serialize_expertise.data,
+                     'roles': serialize_roles.data}, 200)
+
+@api_view(['POST'])
+def register_clinic(request):
+    user_id = request.POST.get('user')
+    name = request.POST.get('name')
+    address = request.POST.get('address')
+    contact = request.POST.get('contact')
+    email = request.POST.get('email')
+    operation_start = request.POST.get('opStart')
+    operation_end = request.POST.get('opEnd')
+    starting_day = request.POST.get('dayStart')
+    end_day = request.POST.get('dayEnd')
+    description = request.POST.get('description')
+
+    user = ClinicUser.objects.get(id=user_id)
+    clinics = Clinic.objects.all()
+    for clinic in clinics:
+        if clinic.name.casefold() == name.casefold():
+            return Response({'message': 'clinic registration failed'}, 200)
+
+    newClinic = Clinic(name=name,
+                       address=address,
+                       contact=contact,
+                       email=email,
+                       operation_start=operation_start,
+                       operation_end=operation_end,
+                       starting_day=starting_day,
+                       end_day=end_day,
+                       description=description)
+    newClinic.save()
+
+    staffMember = Staff.objects.get(user=user)
+    staffMember.assigned_clinic.add(newClinic)
+    staffMember.save()
+    return Response({'message': 'successfully registered clinic'}, 200)
+
+@api_view(['POST'])
+def associate(request):
+    user_id = request.POST.get('user')
+    clinic_id = request.POST.get('clinic')
+
+    user = ClinicUser.objects.get(id=user_id)
+    clinic = Clinic.objects.get(id=clinic_id)
+    staffMember = Staff.objects.get(user=user)
+
+    if clinic not in staffMember.assigned_clinic.all():
+        staffMember.assigned_clinic.add(clinic)
+        staffMember.save()
+        return Response({'message': 'association successful'}, 200)
+    else:
+        return Response({'message': 'you are already part of this clinic'}, 200)
+
+
